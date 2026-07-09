@@ -1,11 +1,12 @@
 import type { Board, Card } from "../types/board.types";
+import type { User } from "../types/auth.types";
 
 const now = Date.now();
 const daysAgo = (n: number) =>
 	new Date(now - n * 24 * 60 * 60 * 1000).toISOString();
 
-// Cards live separately (keyed by id) so they're easy to look up
-export const mockCards: Record<string | number, Card> = {
+// Template cards
+export const initialMockCards: Record<string | number, Card> = {
 	"card-1": {
 		id: "card-1",
 		title: "Design system setup",
@@ -90,7 +91,7 @@ export const mockCards: Record<string | number, Card> = {
 				title: "Create store file",
 				description: "src/store/index.ts",
 				isCompleted: false,
-				createdAt: daysAgo(5), // stale -> pushes card to Backlog
+				createdAt: daysAgo(5),
 			},
 			{
 				id: "task-8",
@@ -101,175 +102,12 @@ export const mockCards: Record<string | number, Card> = {
 			},
 		],
 	},
-	"card-5": {
-		id: "card-5",
-		title: "Render List columns",
-		description:
-			"Map over lists in the store, render each as a vertical column.",
-		color: "Black",
-		position: 1,
-		tasks: [
-			{
-				id: "task-9",
-				title: "List component",
-				description: "Takes list as prop",
-				isCompleted: false,
-				createdAt: daysAgo(1),
-			},
-			{
-				id: "task-10",
-				title: "Board layout",
-				description: "Horizontal flex container",
-				isCompleted: false,
-				createdAt: daysAgo(1),
-			},
-		],
-	},
-	"card-6": {
-		id: "card-6",
-		title: "Render Cards inside Lists",
-		description:
-			"For each list, look up cards by cardIds and render them vertically.",
-		color: "#fff8e6",
-		position: 2,
-		tasks: [
-			{
-				id: "task-11",
-				title: "Card component",
-				description: "Title, description, task count",
-				isCompleted: false,
-				createdAt: daysAgo(4), // also stale -> Backlog
-			},
-		],
-	},
-	"card-7": {
-		id: "card-7",
-		title: "Inline editing",
-		description:
-			"Click any text to edit it. Blur or Enter saves. No submit button.",
-		color: "#edf7ed",
-		position: 0,
-		tasks: [
-			{
-				id: "task-12",
-				title: "useInlineEdit hook",
-				description: "Handles value, editing state, commit",
-				isCompleted: false,
-				createdAt: daysAgo(0),
-			},
-			{
-				id: "task-13",
-				title: "Apply to card title",
-				description: "Click title → input field",
-				isCompleted: false,
-				createdAt: daysAgo(0),
-			},
-			{
-				id: "task-14",
-				title: "Apply to list title",
-				description: "Same hook, list context",
-				isCompleted: false,
-				createdAt: daysAgo(0),
-			},
-		],
-	},
-	"card-8": {
-		id: "card-8",
-		title: "Drag and drop cards",
-		description: "Reorder cards within a list. Move cards across lists.",
-		color: "#edf7ed",
-		position: 1,
-		tasks: [
-			{
-				id: "task-15",
-				title: "Install dnd-kit",
-				description: "npm install @dnd-kit/core",
-				isCompleted: false,
-				createdAt: daysAgo(0),
-			},
-			{
-				id: "task-16",
-				title: "Within-list reorder",
-				description: "SortableContext per list",
-				isCompleted: false,
-				createdAt: daysAgo(0),
-			},
-			{
-				id: "task-17",
-				title: "Cross-list move",
-				description: "DragOverlay + droppable lists",
-				isCompleted: false,
-				createdAt: daysAgo(0),
-			},
-		],
-	},
-	"card-9": {
-		id: "card-9",
-		title: "Undo / Redo stack",
-		description:
-			"Ctrl+Z restores prior state. Ctrl+Y re-applies. Max 50 entries.",
-		color: "#f3eefe",
-		position: 0,
-		tasks: [
-			{
-				id: "task-18",
-				title: "History slice",
-				description: "past[] and future[] arrays",
-				isCompleted: false,
-				createdAt: daysAgo(0),
-			},
-			{
-				id: "task-19",
-				title: "pushSnapshot on mutations",
-				description: "Deep clone before each change",
-				isCompleted: false,
-				createdAt: daysAgo(0),
-			},
-			{
-				id: "task-20",
-				title: "Global keyboard listener",
-				description: "useEffect on window keydown",
-				isCompleted: false,
-				createdAt: daysAgo(0),
-			},
-		],
-	},
-	"card-10": {
-		id: "card-10",
-		title: "Canvas mode",
-		description:
-			"Toggle from board view to a free-form infinite canvas. Cards become draggable nodes.",
-		color: "#fdeef0",
-		position: 1,
-		tasks: [
-			{
-				id: "task-21",
-				title: "Pan with spacebar + drag",
-				description: "Track viewport x/y offset",
-				isCompleted: false,
-				createdAt: daysAgo(0),
-			},
-			{
-				id: "task-22",
-				title: "Zoom with scroll wheel",
-				description: "Scale transform, clamped 0.2–2",
-				isCompleted: false,
-				createdAt: daysAgo(0),
-			},
-			{
-				id: "task-23",
-				title: "CanvasCard component",
-				description: "Absolutely positioned, draggable",
-				isCompleted: false,
-				createdAt: daysAgo(0),
-			},
-		],
-	},
 };
 
-export const mockBoard: Board = {
+export const initialMockBoard: Board = {
 	id: "board-1",
-	title: "Workello",
+	userId: "Alice",
+	title: "Workello Workspace",
 	description: "A collaborative Kanban + Canvas workspace.",
 	lists: [
 		{
@@ -284,21 +122,46 @@ export const mockBoard: Board = {
 			title: "In Progress",
 			color: "#fff8e6",
 			position: 1,
-			cardIds: ["card-4", "card-5", "card-6"],
+			cardIds: ["card-4"],
 		},
 		{
 			id: "list-3",
 			title: "Done",
 			color: "#edf7ed",
 			position: 2,
-			cardIds: ["card-7", "card-8"],
+			cardIds: [],
 		},
 		{
 			id: "list-4",
 			title: "Backlog",
 			color: "#f3eefe",
 			position: 3,
-			cardIds: ["card-9", "card-10"],
+			cardIds: [],
 		},
 	],
 };
+
+// Seed mock users
+export const defaultMockUsers: User[] = [
+	{
+		id: "admin-id",
+		userId: "Admin",
+		name: "Workello Administrator",
+		password: "Admin123",
+		role: "admin",
+	},
+	{
+		id: "alice-id",
+		userId: "Alice",
+		name: "Alice Smith",
+		password: "Alice123",
+		role: "user",
+	},
+	{
+		id: "bob-id",
+		userId: "Bob",
+		name: "Bob Jones",
+		password: "Bob123",
+		role: "user",
+	},
+];

@@ -1,18 +1,18 @@
 import { useDraggable } from "@dnd-kit/react";
 import type { Card } from "../../types/board.types";
 import TaskItem from "./TaskItem";
-import {
-	useBoardActions,
-	useBoardUI,
-} from "../../data/contexts/useBoardContext";
+import { useBoardStore } from "../../store/useBoardStore";
+import { useAuthStore } from "../../store/useAuthStore";
 
 interface Props {
 	card: Card;
 }
 
 export default function CardItem({ card }: Props) {
-	const { completeTask } = useBoardActions();
-	const { openCardId, toggleCard } = useBoardUI();
+	const { user } = useAuthStore();
+	const activeUserId = user?.userId || "Alice";
+
+	const { completeTask, openCardId, toggleCard } = useBoardStore();
 	const isOpen = openCardId === card.id;
 
 	const total = card.tasks.length;
@@ -38,7 +38,7 @@ export default function CardItem({ card }: Props) {
 
 			<button
 				type="button"
-				onClick={() => toggleCard(card.id)}
+				onClick={() => toggleCard(isOpen ? null : card.id)}
 				className="w-full text-left p-3 cursor-pointer">
 				{/* Title + position */}
 				<div className="flex items-start justify-between gap-2 mb-1">
@@ -67,7 +67,7 @@ export default function CardItem({ card }: Props) {
 						</span>
 						<svg
 							className={`w-3 h-3 text-slate-500 transition-transform duration-200
-                          ${isOpen ? "rotate-180" : ""}`}
+                           ${isOpen ? "rotate-180" : ""}`}
 							viewBox="0 0 12 12"
 							fill="none">
 							<path
@@ -96,7 +96,7 @@ export default function CardItem({ card }: Props) {
 							<TaskItem
 								key={task.id}
 								task={task}
-								onComplete={() => completeTask(card.id, task.id)}
+								onComplete={() => completeTask(activeUserId, card.id, task.id)}
 							/>
 						))}
 					</div>
@@ -117,7 +117,7 @@ export default function CardItem({ card }: Props) {
 						<div className="w-full h-1 bg-slate-700 rounded-full overflow-hidden">
 							<div
 								className={`h-full rounded-full transition-all duration-500
-                              ${allDone ? "bg-emerald-500" : "bg-indigo-500"}`}
+                               ${allDone ? "bg-emerald-500" : "bg-indigo-500"}`}
 								style={{ width: `${pct}%` }}
 							/>
 						</div>

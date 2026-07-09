@@ -1,26 +1,20 @@
 import { useDroppable } from "@dnd-kit/react";
-import type { Card, List } from "../../types/board.types";
+import type { List, Card } from "../../types/board.types";
 import CardItem from "./Card";
 
 interface Props {
 	list: List;
 	cards: Card[];
 	totalDone: number;
-	onCompleteTask: (cardId: string | number, taskId: string | number) => void;
-	openCardId: string | number | null;
-	onToggleCard: (cardId: string | number) => void;
 }
 
 export default function List({
 	list,
 	cards,
 	totalDone,
-	onCompleteTask,
-	openCardId,
-	onToggleCard,
 }: Props) {
 
-	const {ref, isDropTarget} = useDroppable({id: list.id});
+	const { ref, isDropTarget } = useDroppable({ id: list.id });
 	return (
 		<div
 			ref={ref}
@@ -59,9 +53,6 @@ export default function List({
 					<CardItem
 						key={card.id}
 						card={card}
-						onCompleteTask={onCompleteTask}
-						isOpen={openCardId === card.id}
-						onToggle={() => onToggleCard(card.id)}
 					/>
 				))}
 			</div>
