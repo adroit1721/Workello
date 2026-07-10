@@ -14,7 +14,7 @@ export default function AdminPanel() {
 		logout();
 	};
 
-	const handleViewChange = (view: "overview" | "users" | "boards") => {
+	const handleViewChange = (view: "overview" | "users" | "boards" | "settings") => {
 		setAdminView(view);
 		if (view !== "boards") {
 			setSelectedUser(null);
