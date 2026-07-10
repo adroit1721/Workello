@@ -7,23 +7,27 @@ interface AuthStore {
 	user: User | null;
 	isAuthenticated: boolean;
 	loginAs: "admin" | "user" | null;
+	adminCredentials: { userId: string; password: string; name: string };
 	login: (userId: string, password: string) => { success: boolean; role?: "admin" | "user"; error?: string };
 	logout: () => void;
+	updateAdminCredentials: (patch: { userId?: string; password?: string; name?: string }) => void;
 }
 
 export const useAuthStore = create<AuthStore>()(
 	persist(
-		(set) => ({
+		(set, get) => ({
 			user: null,
 			isAuthenticated: false,
 			loginAs: null,
+			adminCredentials: { userId: "Admin", password: "Admin123", name: "Workello Administrator" },
 			login: (userId, password) => {
-				// Admin hardcoded check
-				if (userId === "Admin" && password === "Admin123") {
+				// Read dynamic admin credentials
+				const { adminCredentials } = get();
+				if (userId === adminCredentials.userId && password === adminCredentials.password) {
 					const adminUser: User = {
 						id: "admin-id",
-						userId: "Admin",
-						name: "Workello Administrator",
+						userId: adminCredentials.userId,
+						name: adminCredentials.name,
 						role: "admin",
 					};
 					set({ user: adminUser, isAuthenticated: true, loginAs: "admin" });
@@ -55,6 +59,17 @@ export const useAuthStore = create<AuthStore>()(
 			},
 			logout: () => {
 				set({ user: null, isAuthenticated: false, loginAs: null });
+			},
+			updateAdminCredentials: (patch) => {
+				set((state) => {
+					const updated = { ...state.adminCredentials, ...patch };
+					// Also update the live user session if currently logged in as admin
+					const newUser =
+						state.user?.role === "admin"
+							? { ...state.user, userId: updated.userId, name: updated.name }
+							: state.user;
+					return { adminCredentials: updated, user: newUser };
+				});
 			},
 		}),
 		{

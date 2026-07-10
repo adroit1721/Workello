@@ -1,6 +1,7 @@
 import { useAdminStore } from "../../store/useAdminStore";
 import { useAuthStore } from "../../store/useAuthStore";
 import AdminOverview from "./AdminOverview";
+import AdminSettings from "./AdminSettings";
 import UsersTable from "./UsersTable";
 import UserBoardView from "./UserBoardView";
 import "./admin.css";
@@ -102,6 +103,28 @@ export default function AdminPanel() {
 							</svg>
 							User Boards
 						</button>
+
+						<button
+							onClick={() => handleViewChange("settings")}
+							className={`flex items-center w-full gap-3 px-4 py-3 text-sm font-semibold rounded-xl transition-all cursor-pointer ${
+								adminView === "settings"
+									? "bg-indigo-600 text-white shadow-lg shadow-indigo-600/10"
+									: "text-slate-400 hover:bg-white/5 hover:text-white"
+							}`}
+						>
+							<svg
+								xmlns="http://www.w3.org/2000/svg"
+								className="w-5 h-5"
+								fill="none"
+								viewBox="0 0 24 24"
+								stroke="currentColor"
+								strokeWidth="2"
+							>
+								<path strokeLinecap="round" strokeLinejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+								<circle cx="12" cy="12" r="3" />
+							</svg>
+							Settings
+						</button>
 					</nav>
 				</div>
 
@@ -141,6 +164,7 @@ export default function AdminPanel() {
 				{adminView === "overview" && <AdminOverview />}
 				{adminView === "users" && <UsersTable />}
 				{adminView === "boards" && <UserBoardView />}
+				{adminView === "settings" && <AdminSettings />}
 			</main>
 		</div>
 	);

@@ -6,12 +6,12 @@ import { defaultMockUsers } from "../data/mockData";
 interface AdminStore {
 	users: User[];
 	selectedUserId: string | null;
-	adminView: "overview" | "users" | "boards";
+	adminView: "overview" | "users" | "boards" | "settings";
 	addUser: (user: Omit<User, "id"> & { userId: string; password?: string }) => void;
 	updateUser: (userId: string, patch: Partial<User & { password?: string }>) => void;
 	deleteUser: (userId: string) => void;
 	setSelectedUser: (userId: string | null) => void;
-	setAdminView: (view: "overview" | "users" | "boards") => void;
+	setAdminView: (view: "overview" | "users" | "boards" | "settings") => void;
 }
 
 export const useAdminStore = create<AdminStore>()(
